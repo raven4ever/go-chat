@@ -24,6 +24,8 @@ func connectToServer(host string, port int) {
 	defer conn.Close()
 
 	fmt.Printf("Connected to server %s:%d...", host, port)
+	fmt.Println("You can now start typing your messages.")
+	fmt.Println("Type 'quit' to exit.")
 
 	// read input from stdin in a loop and send it to the server
 	for {
@@ -37,6 +39,12 @@ func connectToServer(host string, port int) {
 			fmt.Println("Error reading data:", err)
 			return
 		}
+
 		fmt.Print("Server response: ", string(data))
+
+		if input == "quit" {
+			fmt.Println("Closing connection...")
+			return
+		}
 	}
 }
