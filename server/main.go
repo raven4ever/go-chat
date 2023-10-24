@@ -59,13 +59,14 @@ func handleConnection(conn net.Conn) {
 			os.Exit(1)
 		}
 
-		formattedData := strings.TrimSpace(data)
-
-		// if the client sends "quit", close the connection
-		if formattedData == "quit" {
-			fmt.Printf("Closing connection to %s\n", conn.RemoteAddr().String())
-			conn.Write([]byte("See ya!\n"))
-			break
+		content := strings.Split(data, ":")
+		if len(content) == 2 {
+			// if the client sends "quit", close the connection
+			if strings.TrimSpace(content[1]) == "quit" {
+				fmt.Printf("Closing connection to %s\n", conn.RemoteAddr().String())
+				conn.Write([]byte("See ya!\n"))
+				break
+			}
 		}
 
 		// send the data back to the client
