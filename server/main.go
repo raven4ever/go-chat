@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"os"
 	"strings"
 )
 
@@ -30,7 +31,7 @@ func startServer(port int) {
 	srv, err := net.Listen("tcp", fmt.Sprint(":", port))
 	if err != nil {
 		fmt.Println("Error starting server:", err)
-		return
+		os.Exit(1)
 	}
 	defer srv.Close()
 
@@ -40,7 +41,7 @@ func startServer(port int) {
 		conn, err := srv.Accept()
 		if err != nil {
 			fmt.Println("Error accepting connection:", err)
-			return
+			os.Exit(1)
 		}
 		go handleConnection(conn)
 	}
@@ -55,7 +56,7 @@ func handleConnection(conn net.Conn) {
 		data, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
 			fmt.Println("Error reading data:", err)
-			return
+			os.Exit(1)
 		}
 
 		formattedData := strings.TrimSpace(data)

@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"os"
 )
 
 func main() {
@@ -19,7 +20,7 @@ func connectToServer(host string, port int) {
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 	if err != nil {
 		fmt.Println("Error connecting to server:", err)
-		return
+		os.Exit(1)
 	}
 	defer conn.Close()
 
@@ -37,14 +38,14 @@ func connectToServer(host string, port int) {
 		data, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
 			fmt.Println("Error reading data:", err)
-			return
+			os.Exit(1)
 		}
 
 		fmt.Print("Server response: ", string(data))
 
 		if input == "quit" {
 			fmt.Println("Closing connection...")
-			return
+			os.Exit(0)
 		}
 	}
 }
