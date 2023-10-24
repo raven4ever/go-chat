@@ -35,6 +35,7 @@ func startServer(port int) {
 	defer srv.Close()
 
 	fmt.Println("Server started. Waiting for connections...")
+
 	for {
 		conn, err := srv.Accept()
 		if err != nil {
