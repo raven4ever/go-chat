@@ -61,6 +61,8 @@ func handleConnection(conn net.Conn) {
 			break
 		}
 
+		log.Print(data)
+
 		message := utils.NewMessage(data)
 		if message == nil {
 			msg := utils.Message{Username: "Server", Content: "Invalid message!"}
