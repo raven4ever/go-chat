@@ -28,19 +28,23 @@ func connectToServer(host string, port int, user string) {
 	}
 	defer conn.Close()
 
-	fmt.Printf("Connected to server %s:%d...\n", host, port)
-	fmt.Printf("Hello %s!\n", user)
-	fmt.Println("You can now start typing your messages.")
-	fmt.Println("Type 'quit' to exit.")
+	log.Println("Connected to server %s:%d...\n", host, port)
+	log.Printf("Hello %s!\n", user)
+	log.Println("You can now start typing your messages.")
+	log.Println("Type 'quit' to exit.")
 
 	// read input from stdin in a loop and send it to the server
 	for {
 		var input string
+		fmt.Print("> ")
 		fmt.Scanln(&input)
 
-		msg := utils.Message{Username: user, Content: input}
+		// create a new message if the input is not empty
+		if input == "" {
+			continue
+		}
 
-		// fmt.Fprint(conn, msg.String())
+		msg := utils.Message{Username: user, Content: input}
 
 		// send the message to the server
 		conn.Write(msg.Bytes())
@@ -51,7 +55,12 @@ func connectToServer(host string, port int, user string) {
 			log.Fatal("Error reading data:", err)
 		}
 
-		fmt.Print(string(data))
+		message := utils.NewMessage(data)
+		if message == nil {
+			log.Println("Received invalid message from server: ", data)
+		}
+
+		log.Print(message.String())
 
 		if input == "quit" {
 			log.Println("Closing connection...")

@@ -35,7 +35,7 @@ type Message struct {
 
 // returns a string representation of the Message struct.
 func (m *Message) String() string {
-	return fmt.Sprintf("%s: %s\n", m.Username, m.Content)
+	return fmt.Sprintf("%s: %s\n", m.Username, strings.TrimSpace(m.Content))
 }
 
 // returns a Message struct from a string
