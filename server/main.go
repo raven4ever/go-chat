@@ -57,7 +57,8 @@ func handleConnection(conn net.Conn) {
 	for {
 		data, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
-			log.Fatal("Error reading data:", err)
+			log.Println("Error reading data:", err)
+			break
 		}
 
 		message := utils.NewMessage(data)

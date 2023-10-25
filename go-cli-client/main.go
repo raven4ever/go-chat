@@ -28,7 +28,7 @@ func connectToServer(host string, port int, user string) {
 	}
 	defer conn.Close()
 
-	log.Println("Connected to server %s:%d...\n", host, port)
+	log.Printf("Connected to server %s:%d...\n", host, port)
 	log.Printf("Hello %s!\n", user)
 	log.Println("You can now start typing your messages.")
 	log.Println("Type 'quit' to exit.")
@@ -60,7 +60,7 @@ func connectToServer(host string, port int, user string) {
 			log.Println("Received invalid message from server: ", data)
 		}
 
-		log.Print(message.String())
+		fmt.Print(message.String())
 
 		if input == "quit" {
 			log.Println("Closing connection...")
