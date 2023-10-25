@@ -5,8 +5,8 @@ import (
 	"chatty/utils"
 	"flag"
 	"fmt"
+	"log"
 	"net"
-	"os"
 	"strings"
 )
 
@@ -17,10 +17,10 @@ func main() {
 	flag.Parse()
 
 	if utils.IsValidPortNumber(*portNumber) {
-		fmt.Println("Using port number:", *portNumber)
+		log.Println("Using port number:", *portNumber)
 		startServer(*portNumber)
 	} else {
-		fmt.Println("Invalid port number:", *portNumber)
+		log.Println("Invalid port number:", *portNumber)
 	}
 
 }
@@ -30,19 +30,18 @@ func main() {
 func startServer(port int) {
 	srv, err := net.Listen("tcp", fmt.Sprint(":", port))
 	if err != nil {
-		fmt.Println("Error starting server:", err)
-		os.Exit(1)
+		log.Fatal("Error starting server:", err)
 	}
 	defer srv.Close()
 
-	fmt.Println("Server started. Waiting for connections...")
+	log.Println("Server started. Waiting for connections...")
 
 	for {
 		conn, err := srv.Accept()
 		if err != nil {
-			fmt.Println("Error accepting connection:", err)
-			os.Exit(1)
+			log.Fatal("Error accepting connection:", err)
 		}
+
 		go handleConnection(conn)
 	}
 }
@@ -51,26 +50,32 @@ func startServer(port int) {
 // It reads data from the connection and sends it back to the client.
 // If the client sends "quit", the connection is closed.
 func handleConnection(conn net.Conn) {
-	fmt.Printf("Received connection from %s\n", conn.RemoteAddr().String())
+	defer conn.Close()
+
+	log.Println("Received connection from ", conn.RemoteAddr().String())
+
 	for {
 		data, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
-			fmt.Println("Error reading data:", err)
-			os.Exit(1)
+			log.Fatal("Error reading data:", err)
 		}
 
-		content := strings.Split(data, ":")
-		if len(content) == 2 {
-			// if the client sends "quit", close the connection
-			if strings.TrimSpace(content[1]) == "quit" {
-				fmt.Printf("Closing connection to %s\n", conn.RemoteAddr().String())
-				conn.Write([]byte("See ya!\n"))
-				break
-			}
+		message := utils.NewMessage(data)
+		if message == nil {
+			msg := utils.Message{Username: "Server", Content: "Invalid message!"}
+			conn.Write(msg.Bytes())
+			continue
+		}
+
+		// if the client sends "quit", close the connection
+		if strings.TrimSpace(message.Content) == "quit" {
+			log.Println("Closing connection to ", conn.RemoteAddr().String())
+			msg := utils.Message{Username: "Server", Content: "See ya!"}
+			conn.Write(msg.Bytes())
+			break
 		}
 
 		// send the data back to the client
-		conn.Write([]byte(data))
+		conn.Write(message.Bytes())
 	}
-	conn.Close()
 }

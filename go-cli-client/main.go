@@ -5,6 +5,7 @@ import (
 	"chatty-cli/utils"
 	"flag"
 	"fmt"
+	"log"
 	"net"
 	"os"
 )
@@ -36,19 +37,24 @@ func connectToServer(host string, port int, user string) {
 	for {
 		var input string
 		fmt.Scanln(&input)
-		fmt.Fprintf(conn, "%s: %s\n", user, input)
+
+		msg := utils.Message{Username: user, Content: input}
+
+		// fmt.Fprint(conn, msg.String())
+
+		// send the message to the server
+		conn.Write(msg.Bytes())
 
 		// read the response from the server
 		data, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
-			fmt.Println("Error reading data:", err)
-			os.Exit(1)
+			log.Fatal("Error reading data:", err)
 		}
 
 		fmt.Print(string(data))
 
 		if input == "quit" {
-			fmt.Println("Closing connection...")
+			log.Println("Closing connection...")
 			os.Exit(0)
 		}
 	}
