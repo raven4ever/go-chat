@@ -1,13 +1,9 @@
 package main
 
 import (
-	"bufio"
+	"chatty-cli/client"
 	"chatty-cli/utils"
 	"flag"
-	"fmt"
-	"log"
-	"net"
-	"os"
 )
 
 func main() {
@@ -17,54 +13,8 @@ func main() {
 
 	flag.Parse()
 
-	connectToServer(*host, *port, *username)
-}
+	client := client.NewClient(*host, *port, *username)
 
-func connectToServer(host string, port int, user string) {
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
-	if err != nil {
-		fmt.Println("Error connecting to server:", err)
-		os.Exit(1)
-	}
-	defer conn.Close()
+	client.HandleConnection()
 
-	log.Printf("Connected to server %s:%d...\n", host, port)
-	log.Printf("Hello %s!\n", user)
-	log.Println("You can now start typing your messages.")
-	log.Println("Type 'quit' to exit.")
-
-	// read input from stdin in a loop and send it to the server
-	for {
-		var input string
-		fmt.Print("> ")
-		fmt.Scanln(&input)
-
-		// create a new message if the input is not empty
-		if input == "" {
-			continue
-		}
-
-		msg := utils.Message{Username: user, Content: input}
-
-		// send the message to the server
-		conn.Write(msg.Bytes())
-
-		// read the response from the server
-		data, err := bufio.NewReader(conn).ReadString('\n')
-		if err != nil {
-			log.Fatal("Error reading data:", err)
-		}
-
-		message := utils.NewMessage(data)
-		if message == nil {
-			log.Println("Received invalid message from server: ", data)
-		}
-
-		fmt.Print(message.String())
-
-		if input == "quit" {
-			log.Println("Closing connection...")
-			os.Exit(0)
-		}
-	}
 }
